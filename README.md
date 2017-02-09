@@ -22,7 +22,15 @@ And grab my script from here:
 
 https://raw.github.com/openist/Incursion-360-Control-Autohotkey/blob/master/incursion-360.ahk
 
-I will compile a binary and upload it once I have done further play testing.
+I will compile a binary and upload it once I have done further play testing.  In order for this to work well some specific options need to be set in incursion:
+
+* Clear --more-- Automatically
+* Your desktop needs to be 1920x1080
+* Incursion should be set to Windowed at 1920x1080
+* 16x16 Font Size
+* Auto open doors
+* Auto kick doors
+* Aisable empty handed warning
 
 Here's the Keys:
 
