@@ -1,0 +1,75 @@
+default layer
+-------------------
+
+!a: enter
+!s a: yes
+!b: escape
+!s b: no
+!x: mark
+!s x: main menu
+!y: action menu [mode]
+
+!hat up: autoloot
+!s hat up: page up
+!hat down: combat options
+!s hat down: page down
+!hat left: use skill
+!s hat left: use item
+!hat right: quaff
+!s hat right: autorest
+
+!lstick: move character
+!s lstick: move character diagonal
+!lstick button: wait
+
+!rstick: fast movement (repeat)
+!s rstick: move map
+!rstick button: run
+
+!l trigger: mode shift
+!l button: cast
+
+!r trigger: fire
+!r button: look [mode]
+
+!back: inventory [mode]
+!s back: map (look + o) [mode]
+!start: character [mode]
+
+!xbox: view log
+!s xbox: help
+
+menu mode
+---------------
+lstick: move cursor
+a: select cursor
+b: exit
+
+look mode
+---------------
+a: examine
+b: exit
+
+inventory mode:
+---------------
+x: swap
+a: examine
+b: exit
+y: stow
+hat down: drop
+hat left/right: next container
+
+map mode
+---------------
+rstick: zoom
+a: run
+b: exit
+
+necessary options:
+* Clear --more--
+* 1920x1080 with a 1920x1080 Desktop
+* Windowed
+* 16x16 Font Size
+* auto open doors
+* auto kick doors
+* disable empty handed warning
