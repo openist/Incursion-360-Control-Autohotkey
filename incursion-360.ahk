@@ -3,7 +3,7 @@
 SetTimer, WatchAxis, 5
 SetTimer, WatchScreen, 500
 
-;; fullscreen  and deborderize incursion
+; fullscreen  and deborderize incursion
 IfWinExist, Incursion: Halls of the Goblin King
 {
 	WinActivate Incursion: Halls of the Goblin King
@@ -18,9 +18,6 @@ IfWinExist, Incursion: Halls of the Goblin King
 ; the following value from 0 to the number of the joystick (1-16).
 ; A value of 0 causes the joystick number to be auto-detected:
 global JoystickNumber = 0
-
-; END OF CONFIG SECTION. Do not make changes below this point unless
-; you wish to alter the basic functionality of the script.
 
 ; Auto-detect the joystick number if called for:
 if JoystickNumber <= 0
@@ -40,8 +37,6 @@ if JoystickNumber <= 0
         ExitApp
     }
 }
-
-
 
 ; this is the data necessary to track and render the action menu
 global actionMenuData := []
@@ -112,7 +107,6 @@ actionMenuData[30,2] := "x"
 actionMenuData[31,2] := "y"
 actionMenuData[32,2] := "z"
 
-
 ; this is the data necessary to track and render the character menu
 global charMenuData := []
 global charMenuContext := 0
@@ -179,6 +173,7 @@ global lookmode := 0
 global mapmode := 0
 global fleeMode := 0
 
+; since we are using variables in our gamepad calls we need to use the hotkey function to set it up
 Hotkey, %JoystickNumber%Joy1, myjoy1
 Hotkey, %JoystickNumber%Joy2, myjoy2
 Hotkey, %JoystickNumber%Joy3, myjoy3
@@ -194,8 +189,11 @@ Hotkey, %JoystickNumber%Joy11, myjoy11
 ; disable gui scaling
 gui, -dpiscale
 
+;; ---------------------------------------  end of autoexec --------------------------------------------
 return
 
+; this function checks if any modes are enabled that should disable the default controls
+; this is to prevent a mode from being exited in game with the mode in the control layer remaining enabled
 checkModes(){
 
 	if (inventoryMode > 0 or actionMenuMode > 0 or charMenuMode > 0 or lookmode > 0 or mapmode > 0 or fleeMode > 0){
@@ -411,12 +409,12 @@ GetKeyState, 2JoyPOV, %JoystickNumber%JoyPOV  ; Get position of Y axis.
 KeyToHoldDownPrev = %KeyToHoldDown%  ; Prev now holds the key that was down before (if any).
 
 
-if 2JoyZ > 20                                    ; left trigger
+if 2JoyZ > 20 ; --------------------------------------------------------- left trigger
     shiftmode = 1
 else
 	shiftmode = 0
 
-if (2JoyX > 70) {                                ; left stick right 
+if (2JoyX > 70) { ; ----------------------------------------------------- left stick right 
 	if(shiftmode = 1){
 		KeyToHoldDown = Numpad3
 	} else if (charMenuMode = 1){
@@ -428,7 +426,7 @@ if (2JoyX > 70) {                                ; left stick right
 	} else {
 		KeyToHoldDown = Right
 	}
-} else if (2JoyX < 30) {                         ; left stick left
+} else if (2JoyX < 30) { ; ---------------------------------------------- left stick left
 	if(shiftmode = 1){
 		KeyToHoldDown = Numpad7
 	} else if (charMenuMode = 1){
@@ -440,7 +438,7 @@ if (2JoyX > 70) {                                ; left stick right
 	} else {
 		KeyToHoldDown = Left
 	}
-} else if (2JoyY > 70) {                         ; left stick down
+} else if (2JoyY > 70) { ; ---------------------------------------------- left stick down
 	if(shiftmode = 1){
 		KeyToHoldDown = Numpad1
 	} else if (actionMenuMode = 1){
@@ -452,7 +450,7 @@ if (2JoyX > 70) {                                ; left stick right
 	} else {
 		KeyToHoldDown = Down
 	}
-} else if (2JoyY < 30) {                         ; left stick up
+} else if (2JoyY < 30) { ; ---------------------------------------------- left stick up
 	if(shiftmode = 1){
 		KeyToHoldDown = Numpad9
 	} else if (actionMenuMode = 1){
@@ -464,7 +462,7 @@ if (2JoyX > 70) {                                ; left stick right
 	} else {
 		KeyToHoldDown = Up
 	}
-} else if (2JoyV > 70) {                         ; right stick right
+} else if (2JoyV > 70) { ; ---------------------------------------------- right stick right
 	if (shiftmode = 1) {
 		Send {Alt down}{Right}{Alt up}
 	    Sleep, 100
@@ -475,7 +473,7 @@ if (2JoyX > 70) {                                ; left stick right
 	} else {
 		KeyToHoldDown = Numpad6
 	}
-} else if (2JoyV < 30) {                         ; right stick left
+} else if (2JoyV < 30) { ; ---------------------------------------------- right stick left
 	if (shiftmode = 1) {
 		Send {Alt down}{Left}{Alt up}
 	    Sleep, 100
@@ -486,7 +484,7 @@ if (2JoyX > 70) {                                ; left stick right
 	} else {
 		KeyToHoldDown = Numpad4
 	}
-} else if (2JoyU > 70) {                         ; right stick down 
+} else if (2JoyU > 70) { ; ---------------------------------------------- right stick down 
 	if(mapmode = 1){
 		KeyToHoldDown = -
 	} else if (shiftmode = 1) {
@@ -499,7 +497,7 @@ if (2JoyX > 70) {                                ; left stick right
 	} else {
 		KeyToHoldDown = Numpad2
 	}
-} else if (2JoyU < 30) {                         ; right stick up
+} else if (2JoyU < 30) { ; ---------------------------------------------- right stick up
 	if(mapmode = 1){
 		KeyToHoldDown = +
 	} else if (shiftmode = 1){
@@ -512,13 +510,13 @@ if (2JoyX > 70) {                                ; left stick right
 	} else{
 		KeyToHoldDown = Numpad8
 	}
-} else if (2JoyR > 40) {                         ; Right trigger
+} else if (2JoyR > 40) { ; ---------------------------------------------- Right trigger
 	if (checkModes()){
 		;; do nothing if another mode is active
 	} else{
 		KeyToHoldDown = f
 	}
-} else if (2JoyPOV > -1 and 2JoyPOV < 8999) {    ; hat up
+} else if (2JoyPOV > -1 and 2JoyPOV < 8999) { ; ------------------------- hat up
 	if(shiftmode = 1){
 		KeyToHoldDown = PgUp
 	} else if (checkModes()){
@@ -526,7 +524,7 @@ if (2JoyX > 70) {                                ; left stick right
 	} else {
 		KeyToHoldDown = F8
 	}
-} else if (2JoyPOV > 8999 and 2JoyPOV < 17999) { ; hat right
+} else if (2JoyPOV > 8999 and 2JoyPOV < 17999) { ; ---------------------- hat right
 	 if (inventoryMode = 1){
 		KeyToHoldDown = Tab
 	} else if(shiftmode = 1){
@@ -536,7 +534,7 @@ if (2JoyX > 70) {                                ; left stick right
 	} else {
 		KeyToHoldDown = q
 	}
-} else if (2JoyPOV > 17999 and 2JoyPOV < 26999) { ; hat down
+} else if (2JoyPOV > 17999 and 2JoyPOV < 26999) { ; --------------------- hat down
 	if(shiftmode = 1){
 		KeyToHoldDown = PgDn
 	} else if (inventoryMode = 1){
@@ -546,7 +544,7 @@ if (2JoyX > 70) {                                ; left stick right
 	} else {
 		KeyToHoldDown = c
 	}
-} else if (2JoyPOV > 26999) {                     ; hat left
+} else if (2JoyPOV > 26999) { ; ----------------------------------------- hat left
 	if(shiftmode = 1){
 		KeyToHoldDown = y
 	} else if (inventoryMode = 1){
@@ -560,6 +558,7 @@ if (2JoyX > 70) {                                ; left stick right
     KeyToHoldDown =
 }
 
+;; setup the variables that are used to test for increased repeat rate
 Rightvar = Numpad6
 Leftvar = Numpad4
 Upvar = Numpad8
@@ -593,11 +592,11 @@ return
 ; main non analog button remaping
 ; ------------------------------------------------------------------------------
 
-myjoy1:                 ; A
-	if(lookmode = 1){ ; if we are in lookmode we will send examine by default
+myjoy1: ; -------------------------------------------------------------------- A
+	if(lookmode = 1){ ; 
 		Send {x}
 		lookmode += 1
-	} else if(lookmode = 2){ ; if we have stepped into examine mode then a should do nothing, forcing the user to escape using b
+	} else if(lookmode = 2){ 
 		; do nothing
 	} else if(shiftmode = 1){
 		Send {y}
@@ -623,8 +622,8 @@ myjoy1:                 ; A
 	}
 Return
 	
-myjoy2:                  ; B
-	if(lookmode > 0){   ; if lookmode is engadges we step the variable that represents the depth of the dialog back
+myjoy2: ; --------------------------------------------------------------------- B
+	if(lookmode > 0){  
 		lookmode -= 1
 		Send {Escape} 
 	} else if (shiftmode = 1) {
@@ -651,7 +650,7 @@ myjoy2:                  ; B
 	actionMenuMode = 0
 Return
 
-myjoy3:     ; X
+myjoy3: ; --------------------------------------------------------------------- X
 	if(shiftmode = 1){
 		Send {m}
 	} else if (inventoryMode = 1) {
@@ -666,7 +665,7 @@ myjoy3:     ; X
 Return
 
 
-myjoy4:
+myjoy4: ; --------------------------------------------------------------------- Y
 	if (inventoryMode = 1) {
 		Send {s}
 	} else if (checkModes()){
@@ -679,15 +678,15 @@ myjoy4:
 	}
 Return
 
-myjoy5:
+myjoy5: ;  -------------------------------------------------------------------- LShoulder
 	if (checkModes()){
 	   ;; do nothing if another mode is active
 	} else{
-		Send {m}         ; LShoulder
+		Send {m}        
 	}
 Return
 
-myjoy6:                 ; RShoulder
+myjoy6: ; --------------------------------------------------------------------- RShoulder
 	if (checkModes()){
 	   ;; do nothing if another mode is active
 	} else{
@@ -696,7 +695,7 @@ myjoy6:                 ; RShoulder
 	}
 Return
 
-myjoy7:         ; Back
+myjoy7: ; --------------------------------------------------------------------- Back
 	if(shiftmode = 1){
 		Send {l}
 		Send {o}
@@ -709,7 +708,7 @@ myjoy7:         ; Back
 	}
 Return
 
-myjoy8:         ; Start
+myjoy8: ; --------------------------------------------------------------------- Start
 	if (checkModes()){
 	   ;; do nothing if another mode is active
 	} else{
@@ -720,7 +719,7 @@ myjoy8:         ; Start
 	}
 Return
 
-myjoy9:         ; LStick
+myjoy9: ; --------------------------------------------------------------------- LStick
 	if (checkModes()){
 	   ;; do nothing if another mode is active
 	} else{
@@ -728,7 +727,7 @@ myjoy9:         ; LStick
 	}
 Return
 
-myjoy10:       ; RStick
+myjoy10: ; -------------------------------------------------------------------- RStick
 	if (checkModes()){
 	   ;; do nothing if another mode is active
 	} else{
@@ -736,7 +735,7 @@ myjoy10:       ; RStick
 	}
 Return
 
-myjoy11:                ; Xbox
+myjoy11: ; -------------------------------------------------------------------- Xbox
 	if(shiftmode = 1){
 		Send {?} 
 	} else if (checkModes()){
