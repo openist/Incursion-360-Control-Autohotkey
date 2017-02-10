@@ -1,6 +1,7 @@
 #Persistent  ; Keep this script running until the user explicitly exits it.
 #InstallKeybdHook
 SetTimer, WatchAxis, 5
+SetTimer, WatchScreen, 500
 
 ;; fullscreen  and deborderize incursion
 IfWinExist, Incursion: Halls of the Goblin King
@@ -12,6 +13,7 @@ IfWinExist, Incursion: Halls of the Goblin King
 		WinSet, Style, -0xC00000, Incursion: Halls of the Goblin King
 		WinMove, , , 0, 0, %A_ScreenWidth%, %A_ScreenHeight%
 }
+
 ; If you want to unconditionally use a specific joystick number, change
 ; the following value from 0 to the number of the joystick (1-16).
 ; A value of 0 causes the joystick number to be auto-detected:
@@ -38,6 +40,8 @@ if JoystickNumber <= 0
         ExitApp
     }
 }
+
+
 
 ; this is the data necessary to track and render the action menu
 global actionMenuData := []
@@ -173,6 +177,7 @@ global charMenuMode := 0
 global shiftmode := 0
 global lookmode := 0
 global mapmode := 0
+global fleeMode := 0
 
 Hotkey, %JoystickNumber%Joy1, myjoy1
 Hotkey, %JoystickNumber%Joy2, myjoy2
@@ -186,7 +191,19 @@ Hotkey, %JoystickNumber%Joy9, myjoy9
 Hotkey, %JoystickNumber%Joy10, myjoy10
 Hotkey, %JoystickNumber%Joy11, myjoy11
 
+; disable gui scaling
+gui, -dpiscale
+
 return
+
+checkModes(){
+
+	if (inventoryMode > 0 or actionMenuMode > 0 or charMenuMode > 0 or lookmode > 0 or mapmode > 0 or fleeMode > 0){
+		return true
+	} else {
+		return false
+	}
+}
 
 ; helper function for creating the menus
 CreateBox(Color)
@@ -293,7 +310,7 @@ charMenuLeft()
 	RemoveBox()
 	;; if we are at the end of the menu go to the top
 	if(charMenuContext = 1){
-		charMenuContext = 32
+		charMenuContext = 13
 	} else {
 		charMenuContext -= 1
 	}
@@ -369,6 +386,17 @@ menuClose()
 }
 
 
+;; This is the main function that does screen scraping
+;;------------------------------------------------------------------------
+WatchScreen:
+; this watchs for the abort, flee, disengage promtp and enters a special mode for it
+PixelGetColor, somecolor, 931, 58, RGB
+if(somecolor = 0xffff00){
+	fleeMode = 1
+} else {
+	fleeMode = 0
+}
+Return
 
 ;; This is the main function that watches for analog control changes
 ;;------------------------------------------------------------------------
@@ -393,6 +421,10 @@ if (2JoyX > 70) {                                ; left stick right
 		KeyToHoldDown = Numpad3
 	} else if (charMenuMode = 1){
 		charMenuRight()
+	} else if (mapmode = 1 or lookmode = 1){
+		KeyToHoldDown = Right
+	} else if (checkModes()){
+		;; do nothing if another mode is active
 	} else {
 		KeyToHoldDown = Right
 	}
@@ -401,6 +433,10 @@ if (2JoyX > 70) {                                ; left stick right
 		KeyToHoldDown = Numpad7
 	} else if (charMenuMode = 1){
 		charMenuLeft()
+	} else if (mapmode = 1 or lookmode = 1){
+		KeyToHoldDown = Left
+	} else if (checkModes()){
+		;; do nothing if another mode is active
 	} else {
 		KeyToHoldDown = Left
 	}
@@ -409,6 +445,10 @@ if (2JoyX > 70) {                                ; left stick right
 		KeyToHoldDown = Numpad1
 	} else if (actionMenuMode = 1){
 		actionMenuDown()
+	} else if (mapmode = 1 or charMenuMode = 1 or inventoryMode = 1 or lookmode = 1){
+		KeyToHoldDown = Down
+	} else if (checkModes()){
+		;; do nothing if another mode is active
 	} else {
 		KeyToHoldDown = Down
 	}
@@ -417,6 +457,10 @@ if (2JoyX > 70) {                                ; left stick right
 		KeyToHoldDown = Numpad9
 	} else if (actionMenuMode = 1){
 		actionMenuUp()
+	} else if (mapmode = 1 or charMenuMode = 1 or inventoryMode = 1 or lookmode = 1){
+		KeyToHoldDown = Up
+	} else if (checkModes()){
+		;; do nothing if another mode is active
 	} else {
 		KeyToHoldDown = Up
 	}
@@ -424,6 +468,10 @@ if (2JoyX > 70) {                                ; left stick right
 	if (shiftmode = 1) {
 		Send {Alt down}{Right}{Alt up}
 	    Sleep, 100
+	} else if (lookmode = 1) {
+		KeyToHoldDown = Numpad6
+	} else if (checkModes()){
+		;; do nothing if another mode is active
 	} else {
 		KeyToHoldDown = Numpad6
 	}
@@ -431,6 +479,10 @@ if (2JoyX > 70) {                                ; left stick right
 	if (shiftmode = 1) {
 		Send {Alt down}{Left}{Alt up}
 	    Sleep, 100
+	} else if (lookmode = 1) {
+		KeyToHoldDown = Numpad4
+	} else if (checkModes()){
+		;; do nothing if another mode is active
 	} else {
 		KeyToHoldDown = Numpad4
 	}
@@ -440,6 +492,10 @@ if (2JoyX > 70) {                                ; left stick right
 	} else if (shiftmode = 1) {
 		Send {Alt down}{Down}{Alt up}
 	    Sleep, 100
+	} else if (inventoryMode = 1 or lookmode = 1) {
+		KeyToHoldDown = Numpad2
+	} else if (checkModes()){
+		;; do nothing if another mode is active
 	} else {
 		KeyToHoldDown = Numpad2
 	}
@@ -449,14 +505,24 @@ if (2JoyX > 70) {                                ; left stick right
 	} else if (shiftmode = 1){
 		Send {Alt down}{Up}{Alt up}
 	    Sleep, 100
+	} else if (inventoryMode = 1 or lookmode = 1) {
+		KeyToHoldDown = Numpad8
+	} else if (checkModes()){
+		;; do nothing if another mode is active
 	} else{
 		KeyToHoldDown = Numpad8
 	}
 } else if (2JoyR > 40) {                         ; Right trigger
-    KeyToHoldDown = f
+	if (checkModes()){
+		;; do nothing if another mode is active
+	} else{
+		KeyToHoldDown = f
+	}
 } else if (2JoyPOV > -1 and 2JoyPOV < 8999) {    ; hat up
 	if(shiftmode = 1){
 		KeyToHoldDown = PgUp
+	} else if (checkModes()){
+		;; do nothing if another mode is active
 	} else {
 		KeyToHoldDown = F8
 	}
@@ -465,6 +531,8 @@ if (2JoyX > 70) {                                ; left stick right
 		KeyToHoldDown = Tab
 	} else if(shiftmode = 1){
 		KeyToHoldDown = F3
+	} else if (checkModes()){
+		;; do nothing if another mode is active
 	} else {
 		KeyToHoldDown = q
 	}
@@ -473,14 +541,18 @@ if (2JoyX > 70) {                                ; left stick right
 		KeyToHoldDown = PgDn
 	} else if (inventoryMode = 1){
 		KeyToHoldDown = d
+	} else if (checkModes()){
+		;; do nothing if another mode is active
 	} else {
-		KeyToHoldDown = q
+		KeyToHoldDown = c
 	}
 } else if (2JoyPOV > 26999) {                     ; hat left
 	if(shiftmode = 1){
 		KeyToHoldDown = y
 	} else if (inventoryMode = 1){
 		KeyToHoldDown = Tab
+	} else if (checkModes()){
+		;; do nothing if another mode is active
 	} else {
 		KeyToHoldDown = u
 	}
@@ -542,6 +614,10 @@ myjoy1:                 ; A
 	} else if(inventoryMode = 1){ 
 		Send {x}
 	    inventoryMode += 1
+	}else if (fleeMode = 1) {
+		Send {d} 
+	} else if (checkModes()){
+		;; do nothing if another mode is active
     } else {
 		Send {Enter}
 	}
@@ -564,6 +640,10 @@ myjoy2:                  ; B
 		actionMenuMode = 0
 	    Send {Escape} 
 		menuClose()
+	}else if (fleeMode = 1) {
+		Send {Escape} 
+	} else if (checkModes()){
+		;; do nothing if another mode is active
 	} else {
 		Send {Escape} 
 	}
@@ -574,6 +654,12 @@ Return
 myjoy3:     ; X
 	if(shiftmode = 1){
 		Send {m}
+	} else if (inventoryMode = 1) {
+		Send {Space}
+	}else if (fleeMode = 1) {
+		Send {f} 
+	} else if (checkModes()){
+		;; do nothing if another mode is active
 	} else {
 		Send {Space}
 	}
@@ -583,6 +669,8 @@ Return
 myjoy4:
 	if (inventoryMode = 1) {
 		Send {s}
+	} else if (checkModes()){
+		;; do nothing if another mode is active
 	} else {
 		Send {?}
 		actionMenuMode = 1
@@ -592,12 +680,20 @@ myjoy4:
 Return
 
 myjoy5:
-	Send {m}         ; LShoulder
+	if (checkModes()){
+	   ;; do nothing if another mode is active
+	} else{
+		Send {m}         ; LShoulder
+	}
 Return
 
 myjoy6:                 ; RShoulder
-	Send {l}
-	lookmode = 1
+	if (checkModes()){
+	   ;; do nothing if another mode is active
+	} else{
+		Send {l}
+		lookmode = 1
+	}
 Return
 
 myjoy7:         ; Back
@@ -605,6 +701,8 @@ myjoy7:         ; Back
 		Send {l}
 		Send {o}
 		mapmode = 1
+	} else if (checkModes()){
+		;; do nothing if another mode is active
 	} else {
 		Send {i}
 	    inventoryMode = 1
@@ -612,23 +710,37 @@ myjoy7:         ; Back
 Return
 
 myjoy8:         ; Start
-	Send {d}
-	charMenuMode = 1
-	charMenuContext = 1
-	initCharMenu()
+	if (checkModes()){
+	   ;; do nothing if another mode is active
+	} else{
+		Send {d}
+		charMenuMode = 1
+		charMenuContext = 1
+		initCharMenu()
+	}
 Return
 
 myjoy9:         ; LStick
-	Send {.}
+	if (checkModes()){
+	   ;; do nothing if another mode is active
+	} else{
+		Send {.}
+	}
 Return
 
 myjoy10:       ; RStick
-	Send {,}
+	if (checkModes()){
+	   ;; do nothing if another mode is active
+	} else{
+		Send {,}
+	}
 Return
 
 myjoy11:                ; Xbox
 	if(shiftmode = 1){
 		Send {?} 
+	} else if (checkModes()){
+		;; do nothing if another mode is active
 	} else {
 		Send {v} 
 	}
