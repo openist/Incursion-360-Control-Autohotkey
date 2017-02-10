@@ -12,6 +12,32 @@ IfWinExist, Incursion: Halls of the Goblin King
 		WinSet, Style, -0xC00000, Incursion: Halls of the Goblin King
 		WinMove, , , 0, 0, %A_ScreenWidth%, %A_ScreenHeight%
 }
+; If you want to unconditionally use a specific joystick number, change
+; the following value from 0 to the number of the joystick (1-16).
+; A value of 0 causes the joystick number to be auto-detected:
+global JoystickNumber = 0
+
+; END OF CONFIG SECTION. Do not make changes below this point unless
+; you wish to alter the basic functionality of the script.
+
+; Auto-detect the joystick number if called for:
+if JoystickNumber <= 0
+{
+    Loop 16  ; Query each joystick number to find out which ones exist.
+    {
+        GetKeyState, JoyName, %A_Index%JoyName
+        if JoyName <>
+        {
+            JoystickNumber = %A_Index%
+            break
+        }
+    }
+    if JoystickNumber <= 0
+    {
+        MsgBox The system does not appear to have any joysticks.
+        ExitApp
+    }
+}
 
 ; this is the data necessary to track and render the action menu
 global actionMenuData := []
@@ -147,6 +173,19 @@ global charMenuMode := 0
 global shiftmode := 0
 global lookmode := 0
 global mapmode := 0
+
+Hotkey, %JoystickNumber%Joy1, myjoy1
+Hotkey, %JoystickNumber%Joy2, myjoy2
+Hotkey, %JoystickNumber%Joy3, myjoy3
+Hotkey, %JoystickNumber%Joy4, myjoy4
+Hotkey, %JoystickNumber%Joy5, myjoy5
+Hotkey, %JoystickNumber%Joy6, myjoy6
+Hotkey, %JoystickNumber%Joy7, myjoy7
+Hotkey, %JoystickNumber%Joy8, myjoy8
+Hotkey, %JoystickNumber%Joy9, myjoy9
+Hotkey, %JoystickNumber%Joy10, myjoy10
+Hotkey, %JoystickNumber%Joy11, myjoy11
+
 return
 
 ; helper function for creating the menus
@@ -334,13 +373,13 @@ menuClose()
 ;; This is the main function that watches for analog control changes
 ;;------------------------------------------------------------------------
 WatchAxis:
-GetKeyState, 2JoyX, 2JoyX  ; Get position of X axis.
-GetKeyState, 2JoyY, 2JoyY  ; Get position of Y axis.
-GetKeyState, 2JoyU, 2JoyU  ; Get position of Y axis.
-GetKeyState, 2JoyV, 2JoyV  ; Get position of Y axis.
-GetKeyState, 2JoyR, 2JoyR  ; Get position of Y axis.
-GetKeyState, 2JoyZ, 2JoyZ  ; Get position of Y axis.
-GetKeyState, 2JoyPOV, 2JoyPOV  ; Get position of Y axis.
+GetKeyState, 2JoyX, %JoystickNumber%JoyX  ; Get position of X axis.
+GetKeyState, 2JoyY, %JoystickNumber%JoyY  ; Get position of Y axis.
+GetKeyState, 2JoyU, %JoystickNumber%JoyU  ; Get position of Y axis.
+GetKeyState, 2JoyV, %JoystickNumber%JoyV  ; Get position of Y axis.
+GetKeyState, 2JoyR, %JoystickNumber%JoyR  ; Get position of Y axis.
+GetKeyState, 2JoyZ, %JoystickNumber%JoyZ  ; Get position of Y axis.
+GetKeyState, 2JoyPOV, %JoystickNumber%JoyPOV  ; Get position of Y axis.
 KeyToHoldDownPrev = %KeyToHoldDown%  ; Prev now holds the key that was down before (if any).
 
 
@@ -482,7 +521,7 @@ return
 ; main non analog button remaping
 ; ------------------------------------------------------------------------------
 
-2Joy1::                 ; A
+myjoy1:                 ; A
 	if(lookmode = 1){ ; if we are in lookmode we will send examine by default
 		Send {x}
 		lookmode += 1
@@ -508,7 +547,7 @@ return
 	}
 Return
 	
-2Joy2::                  ; B
+myjoy2:                  ; B
 	if(lookmode > 0){   ; if lookmode is engadges we step the variable that represents the depth of the dialog back
 		lookmode -= 1
 		Send {Escape} 
@@ -532,7 +571,7 @@ Return
 	actionMenuMode = 0
 Return
 
-2Joy3::     ; X
+myjoy3:     ; X
 	if(shiftmode = 1){
 		Send {m}
 	} else {
@@ -541,7 +580,7 @@ Return
 Return
 
 
-2Joy4::                 ; Y
+myjoy4:
 	if (inventoryMode = 1) {
 		Send {s}
 	} else {
@@ -552,13 +591,16 @@ Return
 	}
 Return
 
-2Joy5::Send {m}         ; LShoulder
-2Joy6::                 ; RShoulder
+myjoy5:
+	Send {m}         ; LShoulder
+Return
+
+myjoy6:                 ; RShoulder
 	Send {l}
 	lookmode = 1
 Return
 
-2Joy7::         ; Back
+myjoy7:         ; Back
 	if(shiftmode = 1){
 		Send {l}
 		Send {o}
@@ -569,17 +611,22 @@ Return
 	}
 Return
 
-2Joy8::         ; Start
+myjoy8:         ; Start
 	Send {d}
 	charMenuMode = 1
 	charMenuContext = 1
 	initCharMenu()
 Return
 
-2Joy9::Send {.}         ; LStick
-2Joy10::Send {,}        ; RStick
+myjoy9:         ; LStick
+	Send {.}
+Return
 
-2Joy11::                ; Xbox
+myjoy10:       ; RStick
+	Send {,}
+Return
+
+myjoy11:                ; Xbox
 	if(shiftmode = 1){
 		Send {?} 
 	} else {
