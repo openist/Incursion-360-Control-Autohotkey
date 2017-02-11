@@ -30,7 +30,8 @@ I will compile a binary and upload it once I have done further play testing.  In
 * 16x16 Font Size
 * Auto open doors
 * Auto kick doors
-* Aisable empty handed warning
+* Disable empty handed warning
+* Doesn't support the soft color palette
 
 Here's the Keys:
 
