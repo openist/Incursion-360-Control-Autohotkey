@@ -24,14 +24,27 @@ https://raw.github.com/openist/Incursion-360-Control-Autohotkey/blob/master/incu
 
 I will compile a binary and upload it once I have done further play testing.  In order for this to work well some specific options need to be set in incursion:
 
-* Clear --more-- Automatically
-* Your desktop needs to be 1920x1080
-* Incursion should be set to Windowed at 1920x1080
+Necessary Options:
+-------------------------
+* Limits and Warnings
+** Empty Hand Warning: Never
+
+* Output Options
+* Windowed Mode Window Size: 1920x1080
 * 16x16 Font Size
-* Auto open doors
-* Auto kick doors
-* Disable empty handed warning
-* Doesn't support the soft color palette
+** Softer Palette Colors: NO
+
+* Input Options
+** Allow selection jumping: NO
+** Default to Direction Selection: NO
+** Automatically Clear --more--: YES
+** Auto-open Doors: YES
+** Auto-kick Doors: YES
+
+Setup Instructions:
+* Desktop has to be set to 1920x1080
+* Start incusrion and set necessary options
+* Start incustion-gui.exe/.ahk
 
 Here's the Keys:
 
