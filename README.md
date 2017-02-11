@@ -27,19 +27,19 @@ I will compile a binary and upload it once I have done further play testing.  In
 Necessary Options:
 -------------------------
 * Limits and Warnings
-** Empty Hand Warning: Never
+  * Empty Hand Warning: Never
 
 * Output Options
-* Windowed Mode Window Size: 1920x1080
-* 16x16 Font Size
-** Softer Palette Colors: NO
+  * Windowed Mode Window Size: 1920x1080
+  * 16x16 Font Size
+  * Softer Palette Colors: NO
 
 * Input Options
-** Allow selection jumping: NO
-** Default to Direction Selection: NO
-** Automatically Clear --more--: YES
-** Auto-open Doors: YES
-** Auto-kick Doors: YES
+  * Allow selection jumping: NO
+  * Default to Direction Selection: NO
+  * Automatically Clear --more--: YES
+  * Auto-open Doors: YES
+  * Auto-kick Doors: YES
 
 Setup Instructions:
 * Desktop has to be set to 1920x1080
