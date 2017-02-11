@@ -38,6 +38,7 @@ if JoystickNumber <= 0
     }
 }
 
+
 ; this is the data necessary to track and render the action menu
 global actionMenuData := []
 global actionMenuContext := 0
@@ -173,6 +174,8 @@ global lookmode := 0
 global mapmode := 0
 global fleeMode := 0
 
+global keyhold := 0
+
 ; since we are using variables in our gamepad calls we need to use the hotkey function to set it up
 Hotkey, %JoystickNumber%Joy1, myjoy1
 Hotkey, %JoystickNumber%Joy2, myjoy2
@@ -201,6 +204,23 @@ checkModes(){
 	} else {
 		return false
 	}
+}
+
+;; function to show an image on top with no borders
+SplashImageGUI(Picture, X, Y, Duration, Transparent = false) {
+	Gui, XPT99:Margin , 0, 0
+	Gui, XPT99:Add, Picture,, %Picture%
+	Gui, XPT99:Color, ECE9D8
+	Gui, XPT99:+LastFound -Caption +AlwaysOnTop +ToolWindow -Border
+	If (Transparent) {
+		Winset, TransColor, ECE9D8
+	}
+	Gui, XPT99:Show, x%X% y%Y% NoActivate
+}
+
+;; hide the image from pervious function
+DestroySplashGUI(){
+	Gui, XPT99:Destroy
 }
 
 ; helper function for creating the menus
@@ -384,14 +404,23 @@ menuClose()
 }
 
 
+
+
 ;; This is the main function that does screen scraping
 ;;------------------------------------------------------------------------
 WatchScreen:
 ; this watchs for the abort, flee, disengage promtp and enters a special mode for it
 PixelGetColor, somecolor, 931, 58, RGB
 if(somecolor = 0xffff00){
+	if(fleeMode = 0){
+		SplashImage = controlsEngage.png
+		SplashImageGUI(SplashImage, 1620, 0, 2000, true)
+	}
 	fleeMode = 1
 } else {
+	if(fleeMode = 1){
+		DestroySplashGUI()
+	}
 	fleeMode = 0
 }
 Return
@@ -409,12 +438,12 @@ GetKeyState, 2JoyPOV, %JoystickNumber%JoyPOV  ; Get position of Y axis.
 KeyToHoldDownPrev = %KeyToHoldDown%  ; Prev now holds the key that was down before (if any).
 
 
-if 2JoyZ > 20 ; --------------------------------------------------------- left trigger
+if 2JoyZ > 20 ; ------------------------------------------------------------------------- left trigger
     shiftmode = 1
 else
 	shiftmode = 0
 
-if (2JoyX > 70) { ; ----------------------------------------------------- left stick right 
+if (2JoyX > 70) { ; --------------------------------------------------------------------- left stick right 
 	if(shiftmode = 1){
 		KeyToHoldDown = Numpad3
 	} else if (charMenuMode = 1){
@@ -426,7 +455,7 @@ if (2JoyX > 70) { ; ----------------------------------------------------- left s
 	} else {
 		KeyToHoldDown = Right
 	}
-} else if (2JoyX < 30) { ; ---------------------------------------------- left stick left
+} else if (2JoyX < 30) { ; -------------------------------------------------------------- left stick left
 	if(shiftmode = 1){
 		KeyToHoldDown = Numpad7
 	} else if (charMenuMode = 1){
@@ -438,7 +467,7 @@ if (2JoyX > 70) { ; ----------------------------------------------------- left s
 	} else {
 		KeyToHoldDown = Left
 	}
-} else if (2JoyY > 70) { ; ---------------------------------------------- left stick down
+} else if (2JoyY > 70) { ; -------------------------------------------------------------- left stick down
 	if(shiftmode = 1){
 		KeyToHoldDown = Numpad1
 	} else if (actionMenuMode = 1){
@@ -450,7 +479,7 @@ if (2JoyX > 70) { ; ----------------------------------------------------- left s
 	} else {
 		KeyToHoldDown = Down
 	}
-} else if (2JoyY < 30) { ; ---------------------------------------------- left stick up
+} else if (2JoyY < 30) { ; -------------------------------------------------------------- left stick up
 	if(shiftmode = 1){
 		KeyToHoldDown = Numpad9
 	} else if (actionMenuMode = 1){
@@ -462,61 +491,75 @@ if (2JoyX > 70) { ; ----------------------------------------------------- left s
 	} else {
 		KeyToHoldDown = Up
 	}
-} else if (2JoyV > 70) { ; ---------------------------------------------- right stick right
+} else if (2JoyV > 70) { ; -------------------------------------------------------------- right stick right
 	if (shiftmode = 1) {
 		Send {Alt down}{Right}{Alt up}
 	    Sleep, 100
 	} else if (lookmode = 1) {
-		KeyToHoldDown = Numpad6
+		KeyToHoldDown = Right
+	    keyhold = 1
 	} else if (checkModes()){
 		;; do nothing if another mode is active
 	} else {
-		KeyToHoldDown = Numpad6
+		KeyToHoldDown = Right
+		keyhold = 1
 	}
-} else if (2JoyV < 30) { ; ---------------------------------------------- right stick left
+} else if (2JoyV < 30) { ; -------------------------------------------------------------- right stick left
 	if (shiftmode = 1) {
 		Send {Alt down}{Left}{Alt up}
 	    Sleep, 100
 	} else if (lookmode = 1) {
-		KeyToHoldDown = Numpad4
+		KeyToHoldDown = Left
+		keyhold = 1
 	} else if (checkModes()){
 		;; do nothing if another mode is active
 	} else {
-		KeyToHoldDown = Numpad4
+		KeyToHoldDown = Left
+		keyhold = 1
 	}
-} else if (2JoyU > 70) { ; ---------------------------------------------- right stick down 
+} else if (2JoyU > 70) { ; -------------------------------------------------------------- right stick down 
 	if(mapmode = 1){
 		KeyToHoldDown = -
 	} else if (shiftmode = 1) {
 		Send {Alt down}{Down}{Alt up}
 	    Sleep, 100
 	} else if (inventoryMode = 1 or lookmode = 1) {
-		KeyToHoldDown = Numpad2
+		KeyToHoldDown = Down
+		keyhold = 1
 	} else if (checkModes()){
 		;; do nothing if another mode is active
 	} else {
-		KeyToHoldDown = Numpad2
+		KeyToHoldDown = Down
+		keyhold = 1
 	}
-} else if (2JoyU < 30) { ; ---------------------------------------------- right stick up
+} else if (2JoyU < 30) { ; -------------------------------------------------------------- right stick up
 	if(mapmode = 1){
 		KeyToHoldDown = +
 	} else if (shiftmode = 1){
 		Send {Alt down}{Up}{Alt up}
 	    Sleep, 100
 	} else if (inventoryMode = 1 or lookmode = 1) {
-		KeyToHoldDown = Numpad8
+		KeyToHoldDown = Up
+		keyhold = 1
 	} else if (checkModes()){
 		;; do nothing if another mode is active
 	} else{
-		KeyToHoldDown = Numpad8
+		KeyToHoldDown = Up
+		keyhold = 1
 	}
-} else if (2JoyR > 40) { ; ---------------------------------------------- Right trigger
-	if (checkModes()){
+} else if (2JoyR > 40) { ; -------------------------------------------------------------- Right trigger
+	if (inventoryMode = 1 and shiftmode = 1){
+		KeyToHoldDown = A
+	} else if (inventoryMode = 1){
+		KeyToHoldDown = R
+	} else if (shiftmode = 1){
+		KeyToHoldDown = -
+	} else if (checkModes()){
 		;; do nothing if another mode is active
 	} else{
 		KeyToHoldDown = f
 	}
-} else if (2JoyPOV > -1 and 2JoyPOV < 8999) { ; ------------------------- hat up
+} else if (2JoyPOV > -1 and 2JoyPOV < 8999) { ; ----------------------------------------- hat up
 	if(shiftmode = 1){
 		KeyToHoldDown = PgUp
 	} else if (checkModes()){
@@ -524,7 +567,7 @@ if (2JoyX > 70) { ; ----------------------------------------------------- left s
 	} else {
 		KeyToHoldDown = F8
 	}
-} else if (2JoyPOV > 8999 and 2JoyPOV < 17999) { ; ---------------------- hat right
+} else if (2JoyPOV > 8999 and 2JoyPOV < 17999) { ; -------------------------------------- hat right
 	 if (inventoryMode = 1){
 		KeyToHoldDown = Tab
 	} else if(shiftmode = 1){
@@ -534,7 +577,7 @@ if (2JoyX > 70) { ; ----------------------------------------------------- left s
 	} else {
 		KeyToHoldDown = q
 	}
-} else if (2JoyPOV > 17999 and 2JoyPOV < 26999) { ; --------------------- hat down
+} else if (2JoyPOV > 17999 and 2JoyPOV < 26999) { ; ------------------------------------- hat down
 	if(shiftmode = 1){
 		KeyToHoldDown = PgDn
 	} else if (inventoryMode = 1){
@@ -544,7 +587,7 @@ if (2JoyX > 70) { ; ----------------------------------------------------- left s
 	} else {
 		KeyToHoldDown = c
 	}
-} else if (2JoyPOV > 26999) { ; ----------------------------------------- hat left
+} else if (2JoyPOV > 26999) { ; --------------------------------------------------------- hat left
 	if(shiftmode = 1){
 		KeyToHoldDown = y
 	} else if (inventoryMode = 1){
@@ -559,13 +602,13 @@ if (2JoyX > 70) { ; ----------------------------------------------------- left s
 }
 
 ;; setup the variables that are used to test for increased repeat rate
-Rightvar = Numpad6
-Leftvar = Numpad4
-Upvar = Numpad8
-Downvar = Numpad2
+Rightvar = Right
+Leftvar = Left
+Upvar = Up
+Downvar = Down
 
 ; here we test to see if this is the right stick being pressed, if it is we enable key repeating for fast movment, otherwise we enable a single keypress
-if(KeyToHoldDown = Rightvar or KeyToHoldDown = Leftvar or KeyToHoldDown = Upvar or KeyToHoldDown = Downvar){
+if((KeyToHoldDown = Rightvar or KeyToHoldDown = Leftvar or KeyToHoldDown = Upvar or KeyToHoldDown = Downvar) and keyhold = 1){
 	if KeyToHoldDown = %KeyToHoldDownPrev%  ; The correct key is already down (or no key is needed).
     {
 		if KeyToHoldDown
@@ -578,8 +621,7 @@ if(KeyToHoldDown = Rightvar or KeyToHoldDown = Leftvar or KeyToHoldDown = Upvar 
 		return  ; Do nothing.
 }
 
-
-
+keyhold = 0
 
 ; Otherwise, release the previous key and press down the new key:
 SetKeyDelay -1  ; Avoid delays between keystrokes.
@@ -598,6 +640,8 @@ myjoy1: ; -------------------------------------------------------------------- A
 		lookmode += 1
 	} else if(lookmode = 2){ 
 		; do nothing
+	} else if (inventoryMode = 1 and shiftmode = 1){
+		Send {M}
 	} else if(shiftmode = 1){
 		Send {y}
 	} else if(mapmode = 1){ 
@@ -620,6 +664,7 @@ myjoy1: ; -------------------------------------------------------------------- A
     } else {
 		Send {Enter}
 	}
+	DestroySplashGUI()
 Return
 	
 myjoy2: ; --------------------------------------------------------------------- B
@@ -641,17 +686,22 @@ myjoy2: ; --------------------------------------------------------------------- 
 		menuClose()
 	}else if (fleeMode = 1) {
 		Send {Escape} 
+	}else if (mapmode = 1) {
+		Send {Escape} 
+	    mapmode = 0
 	} else if (checkModes()){
 		;; do nothing if another mode is active
 	} else {
 		Send {Escape} 
 	}
-	mapmode = 0
 	actionMenuMode = 0
+	DestroySplashGUI()
 Return
 
 myjoy3: ; --------------------------------------------------------------------- X
-	if(shiftmode = 1){
+	if (inventoryMode = 1 and shiftmode = 1){
+		Send {O}
+	} else if(shiftmode = 1){
 		Send {m}
 	} else if (inventoryMode = 1) {
 		Send {Space}
@@ -672,6 +722,8 @@ myjoy4: ; --------------------------------------------------------------------- 
 		;; do nothing if another mode is active
 	} else {
 		Send {?}
+	    SplashImage = controlsMain.png
+		SplashImageGUI(SplashImage, 75, 75, 2000, true)
 		actionMenuMode = 1
 		actionMenuContext = 1
 		initActionMenu()
@@ -679,7 +731,9 @@ myjoy4: ; --------------------------------------------------------------------- 
 Return
 
 myjoy5: ;  -------------------------------------------------------------------- LShoulder
-	if (checkModes()){
+	if(shiftmode = 1){
+		Send {8}
+	} else if (checkModes()){
 	   ;; do nothing if another mode is active
 	} else{
 		Send {m}        
@@ -687,10 +741,15 @@ myjoy5: ;  -------------------------------------------------------------------- 
 Return
 
 myjoy6: ; --------------------------------------------------------------------- RShoulder
+	if(shiftmode = 1){
+		Send {9}
+	} else 
 	if (checkModes()){
 	   ;; do nothing if another mode is active
 	} else{
 		Send {l}
+	    SplashImage = controlsLook.png
+		SplashImageGUI(SplashImage, 1552, 892, 2000, true)
 		lookmode = 1
 	}
 Return
@@ -700,10 +759,14 @@ myjoy7: ; --------------------------------------------------------------------- 
 		Send {l}
 		Send {o}
 		mapmode = 1
+	    SplashImage = controlsMap.png
+		SplashImageGUI(SplashImage, 1551, 847, 2000, true)
 	} else if (checkModes()){
 		;; do nothing if another mode is active
 	} else {
 		Send {i}
+	    SplashImage = controlsInventory.png
+		SplashImageGUI(SplashImage, 1471, 758, 2000, true)
 	    inventoryMode = 1
 	}
 Return
