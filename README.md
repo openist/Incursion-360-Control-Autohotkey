@@ -14,7 +14,13 @@
 
 Play Incursion the d20/OSRD based the rougelike with a 360 Gamepad!
 
-This is my favorite roguelike and I made this so I could play extended sessions lounging on my couch on the the TV in maximum comfort. An autohotkey scruipt that remaps controls so the game is playable with a xbox controller.  This includes custom modes and even overlays for complicated menu interactions.  This is still a WIP but should be playable.  This script requires autohotkey:
+This is still a WIP but should be playable. 
+
+This is my favorite roguelike and I made this so I could play extended sessions lounging on my couch on the the TV in maximum comfort. An autohotkey scruipt that remaps controls so the game is playable with a xbox controller.  This includes custom modes and even overlays for complicated menu interactions:
+
+![screenshots](http://i.giphy.com/12LIda8Z0CpBPW.gif)
+
+This script requires autohotkey:
 
 https://autohotkey.com/
 
