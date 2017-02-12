@@ -30,7 +30,13 @@ https://raw.github.com/openist/Incursion-360-Control-Autohotkey/blob/master/incu
 
 I will compile a binary and upload it once I have done further play testing.  In order for this to work well some specific options need to be set in incursion:
 
-Necessary Options:
+Setup Instructions:
+---------------------
+* Desktop has to be set to 1920x1080
+* Start incusrion and set necessary options
+* Start incustion-gui.exe/.ahk
+
+Necessary in game Options:
 -------------------------
 * Limits and Warnings
   * Empty Hand Warning: Never
@@ -46,11 +52,6 @@ Necessary Options:
   * Automatically Clear --more--: YES
   * Auto-open Doors: YES
   * Auto-kick Doors: YES
-
-Setup Instructions:
-* Desktop has to be set to 1920x1080
-* Start incusrion and set necessary options
-* Start incustion-gui.exe/.ahk
 
 Here's the Keys:
 
