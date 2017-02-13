@@ -173,6 +173,7 @@ global shiftmode := 0
 global lookmode := 0
 global mapmode := 0
 global fleeMode := 0
+global townMode := 0
 
 global keyhold := 0
 
@@ -199,7 +200,7 @@ return
 ; this is to prevent a mode from being exited in game with the mode in the control layer remaining enabled
 checkModes(){
 
-	if (inventoryMode > 0 or actionMenuMode > 0 or charMenuMode > 0 or lookmode > 0 or mapmode > 0 or fleeMode > 0){
+	if (inventoryMode > 0 or actionMenuMode > 0 or charMenuMode > 0 or lookmode > 0 or mapmode > 0 or fleeMode > 0 or townMode > 0){
 		return true
 	} else {
 		return false
@@ -423,6 +424,21 @@ if(somecolor = 0xffff00){
 	}
 	fleeMode = 0
 }
+
+PixelGetColor, somecolor, 533, 57, RGB
+if(somecolor = 0xffff00){
+	if(townMode = 0){
+		SplashImage = controlsStore.png
+		SplashImageGUI(SplashImage, 1620, 0, 2000, true)
+	}
+	townMode = 1
+} else {
+	if(townMode = 1){
+		DestroySplashGUI()
+	}
+	townMode = 0
+}
+
 Return
 
 ;; This is the main function that watches for analog control changes
@@ -443,7 +459,7 @@ if 2JoyZ > 20 ; ----------------------------------------------------------------
 else
 	shiftmode = 0
 
-if (2JoyX > 70) { ; --------------------------------------------------------------------- left stick right 
+if (2JoyX > 70) { ; --------------------------------------------------------------------- left stick right
 	if(shiftmode = 1){
 		KeyToHoldDown = Numpad3
 	} else if (charMenuMode = 1){
@@ -517,7 +533,7 @@ if (2JoyX > 70) { ; ------------------------------------------------------------
 		KeyToHoldDown = Left
 		keyhold = 1
 	}
-} else if (2JoyU > 70) { ; -------------------------------------------------------------- right stick down 
+} else if (2JoyU > 70) { ; -------------------------------------------------------------- right stick down
 	if(mapmode = 1){
 		KeyToHoldDown = -
 	} else if (shiftmode = 1) {
@@ -635,30 +651,32 @@ return
 ; ------------------------------------------------------------------------------
 
 myjoy1: ; -------------------------------------------------------------------- A
-	if(lookmode = 1){ ; 
+	if(lookmode = 1){ ;
 		Send {x}
 		lookmode += 1
-	} else if(lookmode = 2){ 
+	} else if(lookmode = 2){
 		; do nothing
 	} else if (inventoryMode = 1 and shiftmode = 1){
 		Send {M}
 	} else if(shiftmode = 1){
 		Send {y}
-	} else if(mapmode = 1){ 
+	} else if(mapmode = 1){
 		Send {r}
 	    mapmode = 0
-	} else if(actionMenuMode = 1){ 
+	} else if(actionMenuMode = 1){
 		actionMenuExecute()
 	    actionMenuMode = 0
-	} else if(charMenuMode = 1){ 
+	} else if(townMode = 1){
+		Send {i}
+	} else if(charMenuMode = 1){
 		charMenuExecute()
 	    charMenuMode = 0
 		menuClose()
-	} else if(inventoryMode = 1){ 
+	} else if(inventoryMode = 1){
 		Send {x}
 	    inventoryMode += 1
 	}else if (fleeMode = 1) {
-		Send {d} 
+		Send {d}
 	} else if (checkModes()){
 		;; do nothing if another mode is active
     } else {
@@ -666,33 +684,35 @@ myjoy1: ; -------------------------------------------------------------------- A
 	}
 	DestroySplashGUI()
 Return
-	
+
 myjoy2: ; --------------------------------------------------------------------- B
-	if(lookmode > 0){  
+	if(lookmode > 0){
 		lookmode -= 1
-		Send {Escape} 
+		Send {Escape}
 	} else if (shiftmode = 1) {
-	    Send {n} 
+	    Send {n}
 	}else if (inventoryMode > 0) {
 		inventoryMode -= 1
-	    Send {Escape} 
+	    Send {Escape}
 	}else if (charMenuMode = 1) {
 		charMenuMode = 0
-	    Send {Escape} 
+	    Send {Escape}
 		menuClose()
 	}else if (actionMenuMode = 1) {
 		actionMenuMode = 0
-	    Send {Escape} 
+	    Send {Escape}
 		menuClose()
 	}else if (fleeMode = 1) {
-		Send {Escape} 
+		Send {Escape}
+	} else if(townMode = 1){
+		Send {d}
 	}else if (mapmode = 1) {
-		Send {Escape} 
+		Send {Escape}
 	    mapmode = 0
 	} else if (checkModes()){
 		;; do nothing if another mode is active
 	} else {
-		Send {Escape} 
+		Send {Escape}
 	}
 	actionMenuMode = 0
 	DestroySplashGUI()
@@ -706,7 +726,9 @@ myjoy3: ; --------------------------------------------------------------------- 
 	} else if (inventoryMode = 1) {
 		Send {Space}
 	}else if (fleeMode = 1) {
-		Send {f} 
+		Send {f}
+	} else if(townMode = 1){
+		Send {s}
 	} else if (checkModes()){
 		;; do nothing if another mode is active
 	} else {
@@ -718,6 +740,8 @@ Return
 myjoy4: ; --------------------------------------------------------------------- Y
 	if (inventoryMode = 1) {
 		Send {s}
+	} else if(townMode = 1){
+		Send {R}
 	} else if (checkModes()){
 		;; do nothing if another mode is active
 	} else {
@@ -736,14 +760,14 @@ myjoy5: ;  -------------------------------------------------------------------- 
 	} else if (checkModes()){
 	   ;; do nothing if another mode is active
 	} else{
-		Send {m}        
+		Send {m}
 	}
 Return
 
 myjoy6: ; --------------------------------------------------------------------- RShoulder
 	if(shiftmode = 1){
 		Send {9}
-	} else 
+	} else
 	if (checkModes()){
 	   ;; do nothing if another mode is active
 	} else{
@@ -800,10 +824,10 @@ Return
 
 myjoy11: ; -------------------------------------------------------------------- Xbox
 	if(shiftmode = 1){
-		Send {?} 
+		Send {?}
 	} else if (checkModes()){
 		;; do nothing if another mode is active
 	} else {
-		Send {v} 
+		Send {v}
 	}
 Return
